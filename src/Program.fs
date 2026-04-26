@@ -47,10 +47,8 @@ type Roi = {
 }
 
 // 色块
-type GridPosition = { Column: int; Row: int }
-
 type Cell = {
-    Rank: GridPosition
+    Rank: {| Column: int; Row: int |}
     Point: Point
     Color: Vec3b
     HasCow: bool option
@@ -116,9 +114,10 @@ extern bool GetWindowRect(IntPtr hwnd, RECT& lpRect)
 
 // 获取窗口句柄
 let findWindow windowTitle =
-    match FindWindow(null, windowTitle) with
-    | h when h = IntPtr.Zero -> Error "窗口没找到"
-    | h -> Ok h
+    FindWindow(null, windowTitle)
+    |> function
+        | h when h = IntPtr.Zero -> Error "窗口没找到"
+        | h -> Ok h
 
 
 // 如果窗口最小化则恢复
@@ -164,22 +163,18 @@ let captureScreen roi =
 
 // 灰度处理
 let toGray (ctx: Captured) =
-    use dst = new Mat()
-    Cv2.CvtColor(ctx.Src, dst, ColorConversionCodes.BGR2GRAY)
-
-    let gray = dst.Clone()
+    use gray = new Mat()
+    Cv2.CvtColor(ctx.Src, gray, ColorConversionCodes.BGR2GRAY)
 
     { Src = ctx.Src; Gray = gray }
 
 
 // 二值化处理
 let threshold ctx =
-    use dst = new Mat()
+    use binary = new Mat()
 
-    Cv2.Threshold(ctx.Gray, dst, Config.binarizationThreshold, 255.0, ThresholdTypes.BinaryInv)
+    Cv2.Threshold(ctx.Gray, binary, Config.binarizationThreshold, 255.0, ThresholdTypes.BinaryInv)
     |> ignore
-
-    let binary = dst.Clone()
 
     ctx.Gray.Dispose()
 
@@ -236,26 +231,23 @@ let groupByColumn (ctx: Centered) =
 
 // 构建 Cell 结构
 let buildGrid ctx =
-    let grid =
-        ctx.Columns
-        |> Array.map (Array.sortBy _.Y)
-        |> fun cols -> [|
-            for row in 0 .. ctx.Columns.Length - 1 do
-                [|
-                    for col in 0 .. ctx.Columns.Length - 1 do
-                        let p = cols[col][row]
+    [|
+        for row in 0 .. ctx.Columns.Length - 1 ->
+            [|
+                for col in 0 .. ctx.Columns.Length - 1 ->
+                    let p = ctx.Columns[col][row]
 
-                        {
-                            Rank = { Column = col + 1; Row = row + 1 }
-                            Point = p
-                            Color = ctx.Src.At<Vec3b>(p.Y, p.X)
-                            HasCow = None
-                        }
-                |]
-        |]
-
-    ctx.Src.Dispose()
-    grid
+                    {
+                        Rank = {| Column = col + 1; Row = row + 1 |}
+                        Point = p
+                        Color = ctx.Src.At<Vec3b>(p.Y, p.X)
+                        HasCow = None
+                    }
+            |]
+    |]
+    |> fun grid ->
+        ctx.Src.Dispose()
+        grid
 
 
 // ======================
@@ -286,10 +278,5 @@ let main _ =
     |> Result.map buildGrid
 
     |> printfn "%A"
-
-    // >>=
-    // >>-
-    // <*>
-
 
     0
