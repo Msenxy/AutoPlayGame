@@ -22,20 +22,31 @@ type RECT =
     end
 
 // 窗口的显示状态
-module WindowShowStyle =
-    let SW_HIDE = 0
-    let SW_SHOWNORMAL = 1
-    let SW_SHOWMINIMIZED = 2
-    let SW_SHOWMAXIMIZED = 3
-    let SW_SHOW = 5
-    let SW_RESTORE = 9
+module WindowState =
+    [<Literal>]
+    let swHide = 0
+
+    [<Literal>]
+    let swShownormal = 1
+
+    [<Literal>]
+    let swShowminimized = 2
+
+    [<Literal>]
+    let swShowmaximized = 3
+
+    [<Literal>]
+    let swShow = 5
+
+    [<Literal>]
+    let swRestore = 9
 
 // 截屏尺寸偏移量
 type RoiModifier = {
-    Top: float
-    Left: float
-    Width: float
-    Height: float
+    TopRatio: float
+    LeftRatio: float
+    WidthRatio: float
+    HeightRatio: float
 }
 
 // 偏移后位置
@@ -77,10 +88,10 @@ module Config =
     let windowTitle = "智商不够别点"
 
     let roiModifier: RoiModifier = {
-        Top = 0.297
-        Left = 0.097
-        Width = 0.807
-        Height = 0.443
+        TopRatio = 0.297
+        LeftRatio = 0.097
+        WidthRatio = 0.807
+        HeightRatio = 0.443
     }
 
     let columnGroupThreshold = 5
@@ -123,7 +134,7 @@ let findWindow windowTitle =
 // 如果窗口最小化则恢复
 let restoreIfMinimized hwnd =
     if IsIconic(hwnd) then
-        ShowWindow(hwnd, WindowShowStyle.SW_RESTORE) |> ignore
+        ShowWindow(hwnd, WindowState.swRestore) |> ignore
 
     hwnd
 
@@ -145,10 +156,10 @@ let getModifiedRect (rect: RECT) =
     let winW, winH = rect.Right - rect.Left, rect.Bottom - rect.Top
 
     {
-        Top = rect.Top + int (float winH * Config.roiModifier.Top)
-        Left = rect.Left + int (float winW * Config.roiModifier.Left)
-        Width = int (float winW * Config.roiModifier.Width)
-        Height = int (float winH * Config.roiModifier.Height)
+        Top = rect.Top + int (float winH * Config.roiModifier.TopRatio)
+        Left = rect.Left + int (float winW * Config.roiModifier.LeftRatio)
+        Width = int (float winW * Config.roiModifier.WidthRatio)
+        Height = int (float winH * Config.roiModifier.HeightRatio)
     }
 
 // 截屏
@@ -162,15 +173,17 @@ let captureScreen roi =
     { Src = mat }
 
 // 灰度处理
-let toGray (ctx: Captured) =
+let toGrayScale (ctx: Captured) =
     use gray = new Mat()
     Cv2.CvtColor(ctx.Src, gray, ColorConversionCodes.BGR2GRAY)
 
-    { Src = ctx.Src; Gray = gray }
+    let gray' = gray.Clone()
+
+    { Src = ctx.Src; Gray = gray' }
 
 
 // 二值化处理
-let threshold ctx =
+let binarize ctx =
     use binary = new Mat()
 
     Cv2.Threshold(ctx.Gray, binary, Config.binarizationThreshold, 255.0, ThresholdTypes.BinaryInv)
@@ -178,7 +191,9 @@ let threshold ctx =
 
     ctx.Gray.Dispose()
 
-    { Src = ctx.Src; Binary = binary }
+    let binary' = binary.Clone()
+
+    { Src = ctx.Src; Binary = binary' }
 
 
 // 提取轮廓
@@ -254,7 +269,12 @@ let buildGrid ctx =
 // 数据处理
 // ======================
 
-// 寻找单一点
+// 寻找行列中的单一点
+let findSinglePoint grid = 1
+
+
+// 寻找正确的点
+let findRealPoint grid = grid |> findSinglePoint
 
 
 // ======================
@@ -269,13 +289,15 @@ let main _ =
     |> Result.map getModifiedRect
 
     |> Result.map captureScreen
-    |> Result.map toGray
-    |> Result.map threshold
+    |> Result.map toGrayScale
+    |> Result.map binarize
     |> Result.map findExternalContours
 
     |> Result.map extractCenters
     |> Result.bind groupByColumn
     |> Result.map buildGrid
+
+    |> Result.map findRealPoint
 
     |> printfn "%A"
 
