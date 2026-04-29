@@ -62,7 +62,6 @@ type Cell = {
     Rank: {| Column: int; Row: int |}
     Point: Point
     Color: Vec3b
-    HasCow: bool option
 }
 
 // 管道上下文
@@ -78,6 +77,12 @@ type Grouped = {
     Columns: Point[][]
 }
 
+// 棋盘状态
+type SolverState = {
+    Grid: Cell[][]
+    RealPoints: Set<{| Column: int; Row: int |}>
+    FakePoints: Set<{| Column: int; Row: int |}>
+}
 
 // ======================
 // Config
@@ -256,7 +261,6 @@ let buildGrid ctx =
                         Rank = {| Column = col + 1; Row = row + 1 |}
                         Point = p
                         Color = ctx.Src.At<Vec3b>(p.Y, p.X)
-                        HasCow = None
                     }
             |]
     |]
@@ -264,17 +268,94 @@ let buildGrid ctx =
         ctx.Src.Dispose()
         grid
 
+// 构建数据处理的初始状态
+let initialState grid = {
+    Grid = grid
+    RealPoints = Set.empty
+    FakePoints = Set.empty
+}
+
 
 // ======================
 // 数据处理
 // ======================
 
-// 寻找行列中的单一点
-let findSinglePoint grid = 1
+// 提取未知格
+let unknowns state =
+    state.Grid
+    |> Array.collect id
+    |> Array.filter (fun cell ->
+        not (Set.contains cell.Rank state.RealPoints)
+        && not (Set.contains cell.Rank state.FakePoints))
 
+// 寻找同行同列以及邻居节点
+let peers grid (rank: {| Column: int; Row: int |}) =
+    grid
+    |> Array.collect id
+    |> Array.choose (fun cell ->
+        let sameRow = cell.Rank.Row = rank.Row
+        let sameColumn = cell.Rank.Column = rank.Column
+
+        let adjacent =
+            abs (cell.Rank.Row - rank.Row) <= 1 && abs (cell.Rank.Column - rank.Column) <= 1
+
+        let isSelf = cell.Rank = rank
+
+        if (sameRow || sameColumn || adjacent || isSelf) && not isSelf then
+            Some cell.Rank
+        else
+            None)
+    |> Set.ofArray
+
+// 寻找只有一个颜色的点
+let findSingleColor =
+    fun state ->
+        let newReals =
+            unknowns state
+            |> Array.groupBy _.Color
+            |> Array.choose (fun (_, grid) -> if grid.Length = 1 then Some grid[0].Rank else None)
+            |> Set.ofArray
+
+        if Set.isEmpty newReals then
+            state
+        else
+            let confirmed = Set.union state.RealPoints newReals
+
+            let newFakes =
+                (Set.empty, newReals)
+                ||> Set.fold (fun acc r -> Set.union acc (peers state.Grid r))
+                |> fun allPeers -> Set.difference allPeers confirmed
+
+            {
+                state with
+                    RealPoints = confirmed
+                    FakePoints = Set.union state.FakePoints newFakes
+            }
+
+// 寻找行列中的单一点
+// let findSinglePoint state = None
+
+// 工具函数
+let private isComplete state =
+    state.RealPoints.Count >= state.Grid.Length
+
+let private hasChanged before after =
+    after.RealPoints.Count > before.RealPoints.Count
+    || after.FakePoints.Count > before.FakePoints.Count
 
 // 寻找正确的点
-let findRealPoint grid = grid |> findSinglePoint
+let rec solve state =
+    let state' = state |> findSingleColor
+
+    if isComplete state' then
+        printfn $"完成: %d{state'.RealPoints.Count}/%d{state'.Grid.Length}"
+        state'
+    elif hasChanged state state' then
+        printfn $"进度: Real=%d{state'.RealPoints.Count}/%d{state'.Grid.Length}  Fake=%d{state'.FakePoints.Count}"
+        solve state'
+    else
+        printfn $"推理终止 (Real=%d{state.RealPoints.Count}/%d{state.Grid.Length})"
+        state
 
 
 // ======================
@@ -296,9 +377,10 @@ let main _ =
     |> Result.map extractCenters
     |> Result.bind groupByColumn
     |> Result.map buildGrid
+    |> Result.map initialState
 
-    |> Result.map findRealPoint
+    |> Result.map solve
 
-    |> printfn "%A"
+    |> ignore
 
     0
