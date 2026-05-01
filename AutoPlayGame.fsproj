@@ -7,6 +7,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="src\Domain\Types.fs"/>
+        <Compile Include="src\Domain\State.fs"/>
+        <Compile Include="src\Domain\Config.fs"/>
+        <Compile Include="src\Infrastructure\Win32.fs"/>
+        <Compile Include="src\Infrastructure\Capture.fs"/>
+        <Compile Include="src\Imaging\Preprocess.fs"/>
+        <Compile Include="src\Imaging\BoardDetection.fs"/>
+        <Compile Include="src\Solver\GridHelpers.fs"/>
+        <Compile Include="src\Solver\Rules.fs"/>
+        <Compile Include="src\Solver\Solve.fs"/>
         <Compile Include="src\Program.fs"/>
         <Content Include=".editorconfig"/>
     </ItemGroup>
