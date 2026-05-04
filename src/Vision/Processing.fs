@@ -76,6 +76,7 @@ module Processing =
                 Columns = columns
             }
         else
+            ctx.Src.Dispose()
             Error "行列匹配错误"
 
 
