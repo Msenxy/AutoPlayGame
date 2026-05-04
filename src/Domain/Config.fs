@@ -1,11 +1,17 @@
-module Domain.Config
-
-open Domain.Types
+namespace AutoPlayGame.Domain
 
 
 // 配置
 module Config =
-    let windowTitle = "智商不够别点"
+
+    [<Literal>]
+    let WindowTitle = "智商不够别点"
+
+    [<Literal>]
+    let ColumnGroupThreshold = 5
+
+    [<Literal>]
+    let BinarizationThreshold = 200.0
 
     let roiModifier: RoiModifier = {
         TopRatio = 0.297
@@ -13,6 +19,3 @@ module Config =
         WidthRatio = 0.807
         HeightRatio = 0.443
     }
-
-    let columnGroupThreshold = 5
-    let binarizationThreshold = 200.0

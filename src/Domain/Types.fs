@@ -1,38 +1,14 @@
-module Domain.Types
-
-open System.Runtime.InteropServices
-open OpenCvSharp
+namespace AutoPlayGame.Domain
 
 
 // 窗口尺寸
-[<StructLayout(LayoutKind.Sequential)>]
-type RECT =
-    struct
-        val mutable Left: int
-        val mutable Top: int
-        val mutable Right: int
-        val mutable Bottom: int
-    end
+type WindowRect = {
+    Left: int
+    Top: int
+    Right: int
+    Bottom: int
+}
 
-// 窗口的显示状态
-module WindowState =
-    [<Literal>]
-    let swHide = 0
-
-    [<Literal>]
-    let swShownormal = 1
-
-    [<Literal>]
-    let swShowminimized = 2
-
-    [<Literal>]
-    let swShowmaximized = 3
-
-    [<Literal>]
-    let swShow = 5
-
-    [<Literal>]
-    let swRestore = 9
 
 // 截屏尺寸偏移量
 type RoiModifier = {
@@ -42,6 +18,7 @@ type RoiModifier = {
     HeightRatio: float
 }
 
+
 // 偏移后位置
 type Roi = {
     Top: int
@@ -50,22 +27,22 @@ type Roi = {
     Height: int
 }
 
+
 // 色块
+type Point2D = { X: int; Y: int }
+type Rank2D = { Column: int; Row: int }
+type BgrColor = { B: byte; G: byte; R: byte }
+
 type Cell = {
-    Rank: {| Column: int; Row: int |}
-    Point: Point
-    Color: Vec3b
+    Rank: Rank2D
+    Point: Point2D
+    Color: BgrColor
 }
 
-// 管道上下文
-type Captured = { Src: Mat }
-type Grayed = { Src: Mat; Gray: Mat }
-type Thresholded = { Src: Mat; Binary: Mat }
-type Contoured = { Src: Mat; Contours: Point[][] }
-type Centered = { Src: Mat; Centers: Point[] }
 
-type Grouped = {
-    Src: Mat
-    Centers: Point[]
-    Columns: Point[][]
+// 棋盘状态
+type SolverState = {
+    Grid: Cell[][]
+    RealPoints: Set<Rank2D>
+    FakePoints: Set<Rank2D>
 }

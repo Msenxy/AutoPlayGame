@@ -3,19 +3,21 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0-windows</TargetFramework>
-        <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="src\Domain\Types.fs"/>
-        <Compile Include="src\Domain\State.fs"/>
         <Compile Include="src\Domain\Config.fs"/>
-        <Compile Include="src\Infrastructure\Win32.fs"/>
-        <Compile Include="src\Infrastructure\Capture.fs"/>
-        <Compile Include="src\Imaging\Preprocess.fs"/>
-        <Compile Include="src\Imaging\BoardDetection.fs"/>
-        <Compile Include="src\Solver\GridHelpers.fs"/>
-        <Compile Include="src\Solver\Rules.fs"/>
+        <Compile Include="src\Win32\Native.fs"/>
+        <Compile Include="src\Win32\Warppers.fs"/>
+        <Compile Include="src\Vision\Types.fs"/>
+        <Compile Include="src\Vision\Conversions.fs"/>
+        <Compile Include="src\Vision\Capture.fs"/>
+        <Compile Include="src\Vision\Processing.fs"/>
+        <Compile Include="src\Vision\Pipeline.fs"/>
+        <Compile Include="src\Solver\Shared\Helpers.fs"/>
+        <Compile Include="src\Solver\Rules\FindSingleColor.fs"/>
+        <Compile Include="src\Solver\Rules\FindSinglePoint.fs"/>
         <Compile Include="src\Solver\Solve.fs"/>
         <Compile Include="src\Program.fs"/>
         <Content Include=".editorconfig"/>
