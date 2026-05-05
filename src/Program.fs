@@ -21,12 +21,12 @@ let main _ =
         match run () with
         | Ok _ ->
             stopwatch.Stop()
-            printfn "总耗时: %.2f ms" stopwatch.Elapsed.TotalMilliseconds
+            printfn $"总耗时: %.2f{stopwatch.Elapsed.TotalMilliseconds} ms"
             0
         | Error msg ->
             stopwatch.Stop()
             eprintfn $"错误: %s{msg}"
-            printfn "总耗时: %.2f ms" stopwatch.Elapsed.TotalMilliseconds
+            printfn $"总耗时: %.2f{stopwatch.Elapsed.TotalMilliseconds} ms"
             1
 
     exitCode

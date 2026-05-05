@@ -10,12 +10,12 @@ module FindSinglePoint =
     let apply state =
         let newRealsFromRows =
             Helpers.unknowns state
-            |> Array.groupBy (fun cell -> cell.Rank.Row)
+            |> Array.groupBy _.Rank.Row
             |> Array.choose (fun (_, cells) -> if cells.Length = 1 then Some cells[0].Rank else None)
 
         let newRealsFromColumns =
             Helpers.unknowns state
-            |> Array.groupBy (fun cell -> cell.Rank.Column)
+            |> Array.groupBy _.Rank.Column
             |> Array.choose (fun (_, cells) -> if cells.Length = 1 then Some cells[0].Rank else None)
 
         let newReals = Array.append newRealsFromRows newRealsFromColumns |> Set.ofArray
