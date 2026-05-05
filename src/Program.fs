@@ -1,5 +1,6 @@
 ﻿module Program
 
+open System.Diagnostics
 open AutoPlayGame.Vision
 open AutoPlayGame.Win32
 open AutoPlayGame.Solver
@@ -12,11 +13,20 @@ let run () =
     |> Result.map Solver.solve
 
 
-// Conductor
 [<EntryPoint>]
 let main _ =
-    match run () with
-    | Ok _ -> 0
-    | Error msg ->
-        eprintfn $"错误: %s{msg}"
-        1
+    let stopwatch = Stopwatch.StartNew()
+
+    let exitCode =
+        match run () with
+        | Ok _ ->
+            stopwatch.Stop()
+            printfn "总耗时: %.2f ms" stopwatch.Elapsed.TotalMilliseconds
+            0
+        | Error msg ->
+            stopwatch.Stop()
+            eprintfn $"错误: %s{msg}"
+            printfn "总耗时: %.2f ms" stopwatch.Elapsed.TotalMilliseconds
+            1
+
+    exitCode
