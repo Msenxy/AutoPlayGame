@@ -10,7 +10,7 @@ let run () =
     Wrappers.acquireWindow ()
     |> Result.bind Pipeline.processImage
     |> Result.map Solver.buildContext
-    |> Result.map Solver.solve
+    |> Result.map Solver.execute
 
 
 [<EntryPoint>]
