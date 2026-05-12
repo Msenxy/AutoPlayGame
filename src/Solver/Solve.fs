@@ -31,7 +31,10 @@ module Solver =
 
     // 应用所有推理规则
     let private applyRules ctx state =
-        state |> FindSingleColor.apply ctx |> FindSinglePoint.apply ctx
+        state
+        |> FindSingleColor.apply ctx
+        |> FindSinglePoint.apply ctx
+        |> FindColorConfinement.apply ctx
 
 
     // 寻找正确的点

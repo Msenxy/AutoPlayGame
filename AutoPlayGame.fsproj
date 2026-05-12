@@ -18,6 +18,7 @@
         <Compile Include="src\Solver\Shared\Helpers.fs"/>
         <Compile Include="src\Solver\Rules\FindSingleColor.fs"/>
         <Compile Include="src\Solver\Rules\FindSinglePoint.fs"/>
+        <Compile Include="src\Solver\Rules\FindColorConfinement.fs"/>
         <Compile Include="src\Solver\Solve.fs"/>
         <Compile Include="src\Program.fs"/>
         <Content Include=".editorconfig"/>
