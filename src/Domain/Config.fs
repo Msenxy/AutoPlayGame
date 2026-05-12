@@ -13,9 +13,9 @@ module Config =
     [<Literal>]
     let BinarizationThreshold = 200.0
 
-    let roiModifier: RoiModifier = {
-        TopRatio = 0.297
-        LeftRatio = 0.097
-        WidthRatio = 0.807
-        HeightRatio = 0.443
+    let roiModifier = {
+        TopRatio = 0.3
+        LeftRatio = 0.04
+        WidthRatio = 0.92
+        HeightRatio = 0.5
     }
