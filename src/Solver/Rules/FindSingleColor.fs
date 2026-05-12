@@ -6,9 +6,9 @@ open AutoPlayGame.Solver.Shared
 
 module FindSingleColor =
 
-    let apply state =
+    let apply ctx state =
         let newReals =
-            Helpers.unknowns state
+            Helpers.unknowns ctx.Grid state
             |> Array.groupBy _.Color
             |> Array.choose (fun (_, cells) -> if cells.Length = 1 then Some cells[0].Rank else None)
             |> Set.ofArray
@@ -20,7 +20,9 @@ module FindSingleColor =
 
             let newFakes =
                 (Set.empty, newReals)
-                ||> Set.fold (fun acc rank -> Set.union acc (Helpers.peers state.Grid rank))
+                ||> Set.fold (fun acc rank ->
+                    let peers = ctx.PeerMap |> Map.tryFind rank |> Option.defaultValue Set.empty
+                    Set.union acc peers)
                 |> fun allPeers -> Set.difference allPeers confirmed
 
             {

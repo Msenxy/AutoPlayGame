@@ -29,20 +29,30 @@ type Roi = {
 
 
 // 色块
+[<Struct>]
 type Point2D = { X: int; Y: int }
-type Rank2D = { Column: int; Row: int }
+
+[<Struct>]
+type Rank = { Column: int; Row: int }
+
+[<Struct>]
 type BgrColor = { B: byte; G: byte; R: byte }
 
 type Cell = {
-    Rank: Rank2D
+    Rank: Rank
     Point: Point2D
     Color: BgrColor
 }
 
 
+type SolverContext = {
+    Grid: Cell[][]
+    PeerMap: Map<Rank, Set<Rank>>
+}
+
+
 // 棋盘状态
 type SolverState = {
-    Grid: Cell[][]
-    RealPoints: Set<Rank2D>
-    FakePoints: Set<Rank2D>
+    RealPoints: Set<Rank>
+    FakePoints: Set<Rank>
 }

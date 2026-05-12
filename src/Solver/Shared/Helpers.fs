@@ -6,8 +6,8 @@ open AutoPlayGame.Domain
 module Helpers =
 
     // 提取未知格
-    let unknowns state =
-        state.Grid
+    let unknowns grid state =
+        grid
         |> Array.collect id
         |> Array.filter (fun cell ->
             not (Set.contains cell.Rank state.RealPoints)
@@ -15,7 +15,7 @@ module Helpers =
 
 
     // 寻找同行同列以及邻居节点
-    let peers grid (rank: Rank2D) =
+    let private computePeers grid rank =
         grid
         |> Array.collect id
         |> Array.choose (fun cell ->
@@ -32,3 +32,10 @@ module Helpers =
             else
                 None)
         |> Set.ofArray
+
+
+    let buildPeerMap grid =
+        grid
+        |> Array.collect id
+        |> Array.map (fun cell -> cell.Rank, computePeers grid cell.Rank)
+        |> Map.ofArray

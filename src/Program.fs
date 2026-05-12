@@ -9,7 +9,7 @@ open AutoPlayGame.Solver
 let run () =
     Wrappers.acquireWindow ()
     |> Result.bind Pipeline.processImage
-    |> Result.map Solver.initialState
+    |> Result.map Solver.buildContext
     |> Result.map Solver.solve
 
 
