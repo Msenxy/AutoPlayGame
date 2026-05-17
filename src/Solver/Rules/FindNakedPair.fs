@@ -8,7 +8,7 @@ module FindNakedPair =
 
     let private pairs (arr: 'a[]) = [|
         for i in 0 .. arr.Length - 2 do
-            for j in 0 .. arr.Length - 1 do
+            for j in i + 1 .. arr.Length - 1 do
                 yield arr[i], arr[j]
     |]
 
