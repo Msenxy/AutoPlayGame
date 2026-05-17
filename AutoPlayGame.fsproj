@@ -21,6 +21,7 @@
         <Compile Include="src\Solver\Rules\FindColorConfinement.fs"/>
         <Compile Include="src\Solver\Rules\FindNakedPair.fs"/>
         <Compile Include="src\Solver\Rules\FindCrossConfinement.fs"/>
+        <Compile Include="src\Solver\Rules\FindNakedTriple.fs"/>
         <Compile Include="src\Solver\Solve.fs"/>
         <Compile Include="src\Program.fs"/>
         <Content Include=".editorconfig"/>
