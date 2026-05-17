@@ -35,6 +35,7 @@ module Solver =
         |> FindSingleColor.apply ctx
         |> FindSinglePoint.apply ctx
         |> FindColorConfinement.apply ctx
+        |> FindNakedPair.apply ctx
 
 
     // 寻找正确的点
