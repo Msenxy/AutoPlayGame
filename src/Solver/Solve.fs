@@ -37,6 +37,7 @@ module Solver =
         |> FindColorConfinement.apply ctx
         |> FindNakedPair.apply ctx
         |> FindNakedTriple.apply ctx
+        |> FindHiddenPair.apply ctx
         |> FindCrossConfinement.apply ctx
 
 
